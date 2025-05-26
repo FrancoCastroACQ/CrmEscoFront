@@ -1,11 +1,11 @@
 // Ensure API_BASE_URL is always HTTPS in production
 const getApiBaseUrl = () => {
+  // In development, use the backend service directly
   if (process.env.NODE_ENV === 'development') {
-    // In development, use HTTP and the correct port (8000)
-    return 'http://localhost:8000/api';
+    return 'https://localhost/api';
   }
   
-  // For production, use the absolute path to ensure proper routing
+  // For production, use the absolute path
   return `${window.location.protocol}//${window.location.host}/api`;
 };
 

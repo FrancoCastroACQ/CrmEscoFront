@@ -30,5 +30,8 @@ if [ ! -f "/etc/ssl/certs/crm.davalores.crt" ] || [ ! -f "/etc/ssl/private/crm.d
         -subj "/C=AR/ST=CABA/L=CABA/O=Development/CN=localhost"
 fi
 
+# Ensure static directory exists
+mkdir -p /usr/share/nginx/html/static
+
 # Start Nginx
 exec nginx -g 'daemon off;'
