@@ -2,16 +2,16 @@
 const getApiBaseUrl = () => {
   // Check for environment variables from config.js
   if (typeof window !== 'undefined' && window._env_ && window._env_.API_BASE_URL) {
-    console.log('Using API URL from config.js:', window._env_.API_BASE_URL);
     return window._env_.API_BASE_URL;
   }
 
-  // Development fallback - use the backend service name from docker-compose
-  const devUrl = 'http://backend:8000/api';
+  // Development fallback
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const devUrl = 'http://localhost:8000/api';  // Changed to localhost for local development
   const prodUrl = 'https://apicrm.davalores.com.ar/api';
   
-  const baseUrl = process.env.NODE_ENV === 'production' ? prodUrl : devUrl;
-  console.log('Using fallback API URL:', baseUrl);
+  const baseUrl = isDevelopment ? devUrl : prodUrl;
+  console.log('Using API URL:', baseUrl);
   return baseUrl;
 };
 

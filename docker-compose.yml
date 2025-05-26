@@ -27,11 +27,12 @@ services:
       - crm
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      interval: 10s        # Reduced from 30s
+      timeout: 5s          # Reduced from 10s
+      retries: 5          # Increased from 3
+      start_period: 15s   # Reduced from 30s
 
 networks:
   crm:
     driver: bridge
+    name: crm_network    # Added explicit network name
