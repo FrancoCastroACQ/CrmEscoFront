@@ -2,7 +2,8 @@
 const getApiBaseUrl = () => {
   // In development, use the backend service directly
   if (process.env.NODE_ENV === 'development') {
-    return 'https://localhost/api';
+    // Use the same origin to avoid CORS issues in development
+    return `${window.location.protocol}//${window.location.host}/api`;
   }
   
   // For production, use the absolute path
