@@ -5,9 +5,8 @@ const getApiBaseUrl = () => {
     return 'http://localhost:8000/api';
   }
   
-  // For production, use the relative path since nginx is handling the proxy
-  // This ensures the request goes through our nginx proxy
-  return '/api';
+  // For production, use the absolute path to ensure proper routing
+  return `${window.location.protocol}//${window.location.host}/api`;
 };
 
 // Export the base URL and ensure it's used consistently
