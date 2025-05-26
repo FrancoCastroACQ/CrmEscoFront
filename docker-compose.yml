@@ -14,7 +14,6 @@ services:
         condition: service_healthy
     environment:
       - NODE_ENV=production
-      # Remove API_BASE_URL since it's handled by nginx proxy
 
   backend:
     image: ${IMAGEN_BACKEND}
