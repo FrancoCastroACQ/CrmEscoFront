@@ -2,7 +2,6 @@
 
 import { Prospecto, AccionType } from '../types/Prospecto';
 import { Client, ClientAction } from '../types/Client';
-import { Risk, Instrument } from '../types/Instrument';
 
 // Initial mock data
 const mockProspectos: Prospecto[] = [
@@ -33,6 +32,34 @@ const mockProspectos: Prospecto[] = [
         status: 'abierto'
       }
     ]
+  },
+  {
+    id: '2',
+    nombreCliente: 'María García',
+    contacto: 'maria@email.com',
+    cargo_contacto: 'Directora',
+    oficial: '2',
+    referente: '1',
+    ultimoContacto: '2024-01-20',
+    fechaVencimiento: '2024-02-20',
+    tipoAccion: 'Reunión pendiente',
+    numComitente: 'COM002',
+    yaEsCliente: true,
+    tipoClienteAccion: '',
+    activo: 'activo',
+    notas: 'Cliente existente interesado en nuevos productos',
+    sector_industria: 'Finanzas',
+    actions: [
+      {
+        id: '2',
+        prospect_id: '2',
+        action_date: '2024-01-20',
+        description: 'Reunión de seguimiento',
+        next_contact: '2024-02-20',
+        user_id: '2',
+        status: 'abierto'
+      }
+    ]
   }
 ];
 
@@ -55,6 +82,28 @@ const mockClients: Client[] = [
         description: 'Reunión de seguimiento',
         next_contact: '2024-02-10',
         user_id: '1',
+        status: 'abierto'
+      }
+    ]
+  },
+  {
+    id: '2',
+    numcomitente: 'COM002',
+    nombre: 'Empresa XYZ',
+    sector: 'Finanzas',
+    mail: 'contacto@xyz.com',
+    cuit: '30-98765432-1',
+    oficial: '2',
+    referente: '1',
+    activo: true,
+    actions: [
+      {
+        id: '2',
+        client_id: '2',
+        action_date: '2024-01-15',
+        description: 'Llamada de seguimiento',
+        next_contact: '2024-02-15',
+        user_id: '2',
         status: 'abierto'
       }
     ]
