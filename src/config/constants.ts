@@ -1,7 +1,11 @@
 // Ensure API_BASE_URL is always HTTPS in production
 const getApiBaseUrl = () => {
-  // For local development, use localStorage
-  return '';  // Empty string since we're using localStorage
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:8000/api';
+  }
+  
+  // For production, use the relative path since nginx is handling the proxy
+  return '/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();

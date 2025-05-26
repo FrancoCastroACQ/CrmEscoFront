@@ -13,8 +13,8 @@ services:
       backend:
         condition: service_healthy
     environment:
-      - API_BASE_URL=http://backend:8000/api
       - NODE_ENV=production
+      # Remove API_BASE_URL since it's handled by nginx proxy
 
   backend:
     image: ${IMAGEN_BACKEND}
@@ -27,12 +27,12 @@ services:
       - crm
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 10s        # Reduced from 30s
-      timeout: 5s          # Reduced from 10s
-      retries: 5          # Increased from 3
-      start_period: 15s   # Reduced from 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 networks:
   crm:
     driver: bridge
-    name: crm_network    # Added explicit network name
+    name: crm_network
