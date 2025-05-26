@@ -11,15 +11,24 @@ services:
       - crm
     depends_on:
       - backend
+    environment:
+      - API_BASE_URL=http://backend:8000/api
+      - NODE_ENV=production
+
   backend:
     image: ${IMAGEN_BACKEND}
     restart: always
     ports:
-      - "${PORT_BACKEND}:8000"  # Updated to match the API port
+      - "${PORT_BACKEND}:8000"
     env_file:
       - .env
     networks:
       - crm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   crm:
