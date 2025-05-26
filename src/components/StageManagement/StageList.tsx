@@ -110,7 +110,7 @@ const StageList: React.FC = () => {
               key={stage.id}
               secondaryAction={
                 <Box>
-                  <IconButton edge="end" onClick={() => handleEditStage(stage)}>
+                  <IconButton edge="end\" onClick={() => handleEditStage(stage)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton edge="end" onClick={() => handleDelete(stage.id)}>
@@ -123,7 +123,7 @@ const StageList: React.FC = () => {
                 primary={stage.name}
                 secondary={
                   <>
-                    <Typography component="span" variant="body2" color="text.primary">
+                    <Typography component="span\" variant="body2\" color="text.primary">
                       Order: {stage.order}
                     </Typography>
                     {stage.description && (

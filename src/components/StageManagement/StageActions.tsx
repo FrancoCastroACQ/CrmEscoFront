@@ -119,7 +119,7 @@ const StageActions: React.FC<StageActionsProps> = ({ stage }) => {
               key={action.id}
               secondaryAction={
                 <Box>
-                  <IconButton edge="end" onClick={() => handleEditAction(action)}>
+                  <IconButton edge="end\" onClick={() => handleEditAction(action)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton edge="end" onClick={() => handleDelete(action.id)}>
@@ -132,7 +132,7 @@ const StageActions: React.FC<StageActionsProps> = ({ stage }) => {
                 primary={action.type}
                 secondary={
                   <>
-                    <Typography component="span" variant="body2" color="text.primary">
+                    <Typography component="span\" variant="body2\" color="text.primary">
                       {action.mandatory ? 'Mandatory' : 'Optional'} - Required: {action.required_count}
                     </Typography>
                     <Typography component="p" variant="body2">
