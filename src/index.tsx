@@ -9,6 +9,10 @@ import {
   createTheme,
   StyledEngineProvider,
 } from "@mui/material";
+import { localStorageService } from "./services/localStorageService";
+
+// Initialize localStorage with mock data
+localStorageService.init();
 
 import "./styles/global.css";
 
@@ -28,7 +32,4 @@ root.render(
   </BrowserRouter>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
