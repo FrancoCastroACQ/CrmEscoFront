@@ -5,8 +5,8 @@ const getApiBaseUrl = () => {
   }
   // Development fallback - use HTTP for local development
   return process.env.NODE_ENV === 'production' 
-    ? 'https://apicrm.davalores.com.ar:8000/api'
-    : 'http://localhost:8000/api';  // Changed from 127.0.0.1 to localhost
+    ? 'https://apicrm.davalores.com.ar/api'
+    : 'http://localhost:8000/api';
 };
 
 export const API_BASE_URL = getApiBaseUrl();

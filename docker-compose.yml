@@ -1,4 +1,3 @@
-
 services:
   front:
     image: ${IMAGEN_FRONT}
@@ -16,8 +15,7 @@ services:
     image: ${IMAGEN_BACKEND}
     restart: always
     ports:
-      - "${PORT_BACKEND}:443"
-      - "${PORT_BACKEND_ALTERNATIVO}:80"
+      - "${PORT_BACKEND}:8000"  # Updated to match the API port
     env_file:
       - .env
     networks:
