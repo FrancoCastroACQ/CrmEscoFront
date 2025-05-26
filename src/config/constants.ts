@@ -1,6 +1,7 @@
 // Ensure API_BASE_URL is always correctly configured
 const getApiBaseUrl = () => {
   // For both development and production, use relative path
+  // This matches our Nginx proxy configuration
   return '/api';
 };
 
