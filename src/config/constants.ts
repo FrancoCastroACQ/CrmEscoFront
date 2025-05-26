@@ -6,8 +6,8 @@ const getApiBaseUrl = () => {
     return window._env_.API_BASE_URL;
   }
 
-  // Development fallback
-  const devUrl = 'http://localhost:8000/api';
+  // Development fallback - use the backend service name from docker-compose
+  const devUrl = 'http://backend:8000/api';
   const prodUrl = 'https://apicrm.davalores.com.ar/api';
   
   const baseUrl = process.env.NODE_ENV === 'production' ? prodUrl : devUrl;
