@@ -1,26 +1,82 @@
-import { 
-  Stage, 
-  StageAction, 
-  ProspectStage, 
-  ProspectAction, 
-  CRMEmail 
-} from '../types/Stage';
-import {
-  mockStages,
-  mockStageActions,
-  mockProspectStages,
-  mockProspectActions,
-  mockEmails
-} from '../data/mockData';
+// src/services/localStorageService.ts
+
+import { Prospecto, AccionType } from '../types/Prospecto';
+import { Client, ClientAction } from '../types/Client';
+import { Risk, Instrument } from '../types/Instrument';
+
+// Initial mock data
+const mockProspectos: Prospecto[] = [
+  {
+    id: '1',
+    nombreCliente: 'Juan Pérez',
+    contacto: 'juan@email.com',
+    cargo_contacto: 'Gerente',
+    oficial: '1',
+    referente: '2',
+    ultimoContacto: '2024-01-15',
+    fechaVencimiento: '2024-02-15',
+    tipoAccion: 'Llamada pendiente',
+    numComitente: 'COM001',
+    yaEsCliente: false,
+    tipoClienteAccion: '',
+    activo: 'activo',
+    notas: 'Cliente potencial interesado en inversiones',
+    sector_industria: 'Tecnología',
+    actions: [
+      {
+        id: '1',
+        prospect_id: '1',
+        action_date: '2024-01-15',
+        description: 'Primera llamada de contacto',
+        next_contact: '2024-02-15',
+        user_id: '1',
+        status: 'abierto'
+      }
+    ]
+  }
+];
+
+const mockClients: Client[] = [
+  {
+    id: '1',
+    numcomitente: 'COM001',
+    nombre: 'Empresa ABC',
+    sector: 'Tecnología',
+    mail: 'contacto@abc.com',
+    cuit: '30-12345678-9',
+    oficial: '1',
+    referente: '2',
+    activo: true,
+    actions: [
+      {
+        id: '1',
+        client_id: '1',
+        action_date: '2024-01-10',
+        description: 'Reunión de seguimiento',
+        next_contact: '2024-02-10',
+        user_id: '1',
+        status: 'abierto'
+      }
+    ]
+  }
+];
+
+const mockUsers = [
+  { id: '1', label: 'Juan Oficial' },
+  { id: '2', label: 'María Referente' },
+  { id: '3', label: 'Pedro Analista' }
+];
 
 // Initialize localStorage with mock data if empty
 const initializeStorage = () => {
-  if (!localStorage.getItem('stages')) {
-    localStorage.setItem('stages', JSON.stringify(mockStages));
-    localStorage.setItem('stageActions', JSON.stringify(mockStageActions));
-    localStorage.setItem('prospectStages', JSON.stringify(mockProspectStages));
-    localStorage.setItem('prospectActions', JSON.stringify(mockProspectActions));
-    localStorage.setItem('emails', JSON.stringify(mockEmails));
+  if (!localStorage.getItem('prospectos')) {
+    localStorage.setItem('prospectos', JSON.stringify(mockProspectos));
+  }
+  if (!localStorage.getItem('clients')) {
+    localStorage.setItem('clients', JSON.stringify(mockClients));
+  }
+  if (!localStorage.getItem('users')) {
+    localStorage.setItem('users', JSON.stringify(mockUsers));
   }
 };
 
@@ -34,151 +90,177 @@ const setStorageItem = <T>(key: string, data: T[]): void => {
   localStorage.setItem(key, JSON.stringify(data));
 };
 
+// Service functions
 export const localStorageService = {
   // Initialize storage
-  init() {
+  init: () => {
     initializeStorage();
   },
 
-  // Stage Management
-  async getStages(): Promise<Stage[]> {
-    return getStorageItem<Stage>('stages');
-  },
+  // Prospecto functions
+  getProspectos: async (
+    page = 1,
+    filterStatus = 'todos',
+    sortField: string | null = null,
+    sortDirection: 'ascending' | 'descending' | null = null,
+    filters: any = {}
+  ) => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    const itemsPerPage = 10;
 
-  async createStage(stage: Partial<Stage>): Promise<Stage> {
-    const stages = getStorageItem<Stage>('stages');
-    const newStage: Stage = {
-      id: Date.now().toString(),
-      name: stage.name || '',
-      order: stage.order || stages.length + 1,
-      description: stage.description || null,
-      active: stage.active ?? true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    let filteredProspectos = [...prospectos];
+
+    // Apply filters
+    if (filterStatus !== 'todos') {
+      filteredProspectos = filteredProspectos.filter(p => 
+        filterStatus === 'activos' ? p.activo === 'activo' : p.activo !== 'activo'
+      );
+    }
+
+    // Apply sorting
+    if (sortField && sortDirection) {
+      filteredProspectos.sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        const modifier = sortDirection === 'ascending' ? 1 : -1;
+        return aValue > bValue ? modifier : -modifier;
+      });
+    }
+
+    // Calculate pagination
+    const totalItems = filteredProspectos.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const paginatedProspectos = filteredProspectos.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      data: paginatedProspectos,
+      pagination: {
+        currentPage: page,
+        lastPage: totalPages,
+        total: totalItems
+      }
     };
-    stages.push(newStage);
-    setStorageItem('stages', stages);
-    return newStage;
   },
 
-  async updateStage(id: string, stage: Partial<Stage>): Promise<Stage> {
-    const stages = getStorageItem<Stage>('stages');
-    const index = stages.findIndex(s => s.id === id);
-    if (index === -1) throw new Error('Stage not found');
+  getProspectoById: async (id: string): Promise<Prospecto | null> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    return prospectos.find(p => p.id === id) || null;
+  },
+
+  createProspecto: async (data: Omit<Prospecto, 'id'>): Promise<Prospecto | null> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    const newProspecto: Prospecto = {
+      ...data,
+      id: (prospectos.length + 1).toString(),
+      actions: []
+    };
+    prospectos.push(newProspecto);
+    setStorageItem('prospectos', prospectos);
+    return newProspecto;
+  },
+
+  updateProspecto: async (id: string, data: Partial<Prospecto>): Promise<Prospecto | null> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    const index = prospectos.findIndex(p => p.id === id);
+    if (index === -1) return null;
+
+    prospectos[index] = { ...prospectos[index], ...data };
+    setStorageItem('prospectos', prospectos);
+    return prospectos[index];
+  },
+
+  deleteProspecto: async (id: string): Promise<boolean> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    const filtered = prospectos.filter(p => p.id !== id);
+    setStorageItem('prospectos', filtered);
+    return true;
+  },
+
+  // Client functions
+  getClients: async (
+    page = 1,
+    statusFilter = 'todos',
+    sortField: string | null = null,
+    sortDirection: 'ascending' | 'descending' | null = null,
+    filters: any = {}
+  ) => {
+    const clients = getStorageItem<Client>('clients');
+    const itemsPerPage = 10;
+
+    let filteredClients = [...clients];
+
+    // Apply filters
+    if (statusFilter !== 'todos') {
+      filteredClients = filteredClients.filter(c => 
+        statusFilter === 'activos' ? c.activo : !c.activo
+      );
+    }
+
+    // Apply sorting
+    if (sortField && sortDirection) {
+      filteredClients.sort((a, b) => {
+        const aValue = a[sortField];
+        const bValue = b[sortField];
+        const modifier = sortDirection === 'ascending' ? 1 : -1;
+        return aValue > bValue ? modifier : -modifier;
+      });
+    }
+
+    // Calculate pagination
+    const totalItems = filteredClients.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const paginatedClients = filteredClients.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      data: paginatedClients,
+      pagination: {
+        currentPage: page,
+        lastPage: totalPages,
+        total: totalItems
+      }
+    };
+  },
+
+  // User functions
+  getUsers: async () => {
+    return getStorageItem('users');
+  },
+
+  // Action functions
+  createAction: async (entityId: string, action: AccionType | ClientAction): Promise<any> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
+    const prospecto = prospectos.find(p => p.id === entityId);
     
-    stages[index] = {
-      ...stages[index],
-      ...stage,
-      updated_at: new Date().toISOString()
-    };
-    setStorageItem('stages', stages);
-    return stages[index];
+    if (prospecto) {
+      const newAction = {
+        ...action,
+        id: Date.now().toString(),
+        prospect_id: entityId
+      };
+      
+      prospecto.actions = [...(prospecto.actions || []), newAction];
+      setStorageItem('prospectos', prospectos);
+      return newAction;
+    }
+    return null;
   },
 
-  // Stage Actions
-  async getStageActions(stageId: string): Promise<StageAction[]> {
-    const actions = getStorageItem<StageAction>('stageActions');
-    return actions.filter(action => action.stage_id === stageId);
-  },
-
-  async createStageAction(action: Partial<StageAction>): Promise<StageAction> {
-    const actions = getStorageItem<StageAction>('stageActions');
-    const newAction: StageAction = {
-      id: Date.now().toString(),
-      stage_id: action.stage_id || '',
-      type: action.type || '',
-      description: action.description || '',
-      mandatory: action.mandatory ?? false,
-      required_count: action.required_count || 1,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    actions.push(newAction);
-    setStorageItem('stageActions', actions);
-    return newAction;
-  },
-
-  // Prospect Stages
-  async getProspectStages(prospectId: string): Promise<ProspectStage[]> {
-    const stages = getStorageItem<ProspectStage>('prospectStages');
-    return stages.filter(stage => stage.prospect_id === prospectId);
-  },
-
-  async createProspectStage(prospectStage: Partial<ProspectStage>): Promise<ProspectStage> {
-    const stages = getStorageItem<ProspectStage>('prospectStages');
-    const newStage: ProspectStage = {
-      id: Date.now().toString(),
-      prospect_id: prospectStage.prospect_id || '',
-      stage_id: prospectStage.stage_id || '',
-      start_date: new Date().toISOString(),
-      completion_date: null,
-      active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    stages.push(newStage);
-    setStorageItem('prospectStages', stages);
-    return newStage;
-  },
-
-  // Prospect Actions
-  async getProspectActions(prospectId: string): Promise<ProspectAction[]> {
-    const actions = getStorageItem<ProspectAction>('prospectActions');
-    return actions.filter(action => action.prospect_id === prospectId);
-  },
-
-  async createProspectAction(action: Partial<ProspectAction>): Promise<ProspectAction> {
-    const actions = getStorageItem<ProspectAction>('prospectActions');
-    const newAction: ProspectAction = {
-      id: Date.now().toString(),
-      prospect_id: action.prospect_id || '',
-      action_id: action.action_id || '',
-      assigned_to: action.assigned_to || '',
-      scheduled_date: action.scheduled_date || new Date().toISOString(),
-      completed: false,
-      approved: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    actions.push(newAction);
-    setStorageItem('prospectActions', actions);
-    return newAction;
-  },
-
-  async completeProspectAction(id: string): Promise<ProspectAction> {
-    const actions = getStorageItem<ProspectAction>('prospectActions');
-    const index = actions.findIndex(a => a.id === id);
-    if (index === -1) throw new Error('Action not found');
+  updateAction: async (actionId: string, action: AccionType | ClientAction): Promise<any> => {
+    const prospectos = getStorageItem<Prospecto>('prospectos');
     
-    actions[index].completed = true;
-    actions[index].updated_at = new Date().toISOString();
-    setStorageItem('prospectActions', actions);
-    return actions[index];
-  },
-
-  // Email Management
-  async sendEmail(email: Partial<CRMEmail>): Promise<CRMEmail> {
-    const emails = getStorageItem<CRMEmail>('emails');
-    const newEmail: CRMEmail = {
-      id: Date.now().toString(),
-      prospect_id: email.prospect_id || '',
-      subject: email.subject || '',
-      content: email.content || '',
-      sent_at: new Date().toISOString(),
-      sent_by: email.sent_by || '',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-    emails.push(newEmail);
-    setStorageItem('emails', emails);
-    return newEmail;
-  },
-
-  async getProspectEmails(prospectId: string): Promise<CRMEmail[]> {
-    const emails = getStorageItem<CRMEmail>('emails');
-    return emails
-      .filter(email => email.prospect_id === prospectId)
-      .sort((a, b) => new Date(b.sent_at || '').getTime() - new Date(a.sent_at || '').getTime());
+    for (let prospecto of prospectos) {
+      if (!prospecto.actions) continue;
+      
+      const actionIndex = prospecto.actions.findIndex(a => a.id === actionId);
+      if (actionIndex !== -1) {
+        prospecto.actions[actionIndex] = { ...prospecto.actions[actionIndex], ...action };
+        setStorageItem('prospectos', prospectos);
+        return prospecto.actions[actionIndex];
+      }
+    }
+    return null;
   }
 };
 
